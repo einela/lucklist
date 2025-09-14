@@ -1,0 +1,1 @@
+import{dY as t,D as e,ap as n,cW as r,a4 as a,ao as o}from"./index-C_g2pi0Z.js";const s=()=>{const[s]=t();return e(o,{get loading(){return s.loading},get children(){return e(n,{get children(){var t;return null==(t=s())?void 0:t.content},get ext(){return r(a.obj.name)},toc:!0})}})};export{s as default};
