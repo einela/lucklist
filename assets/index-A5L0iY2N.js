@@ -188,12 +188,12 @@ function hookXhref(r){
 
 function gateway(path) {
     // 处理 % 和 # 的访问报错
-    return base2 + path.replace(/%/g, "%25").replace(/#/g, "%23")
+    return base2 + path
 }
 
 function generatePath(path){
     // 确保浏览器刷新后报错
-    return encodeURIComponent(path.replace(/%/g,"%25"))
+    return encodeURIComponent(path)
 } 
 
 history.replaceState1 = function(a,b,url){
@@ -224,7 +224,7 @@ history.pushState1 = function(a,b,url){
 Object.defineProperties(location,{
     pathname1:{
         get:function(){
-            return getSearch("path") || "/";
+            return getSearch("path").split("/").map(r=>encodeURIComponent(r)).join("/") || "/";
         },
         set:function(){
             alert("can't hook")
@@ -266,15 +266,10 @@ function hookdownload(i,o,a){
     // o 是否文件直接链接
     // a 给定路径
     if(o){
-        return gateway(decodeURIComponent(a))
+        return gateway(a)
     }else{
         return generateUrl(a);
     }
-}
-
-function hookurl(url,base){
-    // 处理 fsDirs 的 # 报错
-    return new URL(url.replace(/#/g, "%23"),base)
 }
 
 // https://github.com/farzher/fuzzysort v1.9.0 最大长度为 8192

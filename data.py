@@ -1,9 +1,4 @@
-import os
-import json
-import time
-import ctypes
-import sys
-import re
+import sys, os, re, json, time, ctypes
 from functools import cmp_to_key
 from pathlib import Path
 
@@ -137,7 +132,7 @@ def main():
     print("正在扫描目录，请稍候...")
     data = scan_directory(root_dir)
     with open('static/data.json', 'w', encoding='utf-8') as f:
-        json.dump(data, f,separators=(',', ':'),ensure_ascii=False)
+        json.dump(data, f, ensure_ascii=False, separators=(",", ":"), sort_keys=True)
     print("数据已导出到 static/data.json")
 
 if __name__ == '__main__':

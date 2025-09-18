@@ -17,7 +17,13 @@
 python -m http.server 5244
 4. 打开浏览器，访问：
 👉 http://127.0.0.1:5244
-> [!tip]
-> 基于 ipfs 的静态 openlist 正在开发中 .....
+
+# 基于 IPFS 的部署方法
+> 假设你的 CID 是 bafy123...
+1. 运行 python cid.py bafy123... 生成 data.json 数据文件
+2. 将整个目录添加到 IPFS
+3. 在 IPFS 中 删除 d 文件夹
+4. 导入 CID (bafy123...) 并命名为 d
+
 # 演示
 GitHub Pages: https://einela.github.io/lucklist/
