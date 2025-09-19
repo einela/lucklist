@@ -1,7 +1,8 @@
-// 获取 "?" 绝对路径
-let base1 = new URL("?",location).href
+// 获取绝对路径
+let base1 = location.origin + location.pathname
 // 获取 "d" 绝对路径
 let base2 = new URL("d",location).href
+let base3 = "?path="
 // 文本正则
 let textreg = /\.(css|txt|htm|html|xml|java|properties|sql|js|md|json|conf|ini|vue|php|py|bat|gitignore|yml|go|sh|c|cpp|h|hpp|tsx|vtt|srt|ass|rs|lrc|strm)$/i
 // 音乐正则
@@ -40,7 +41,7 @@ function fsList(path,page,per_page){
                 "name": d,
                 "size": s,
                 "is_dir": type == 1,
-                "modified": (m|0)*1000,
+                "modified": m,
                 "sign": "",
                 "thumb": "",
                 "type": type,
@@ -96,11 +97,11 @@ function fsGet(path){
                     "name": d,
                     "size": size,
                     "is_dir": false,
-                    "modified": (m|0)*1000,
+                    "modified": m,
                     "sign": "",
                     "thumb": "",
                     "type": type,
-                    "raw_url": gateway(path),
+                    "raw_url": gateway(path.split("/").map(r=>encodeURIComponent(r)).join("/")),
                     "readme": "",
                     "header": "",
                     "related": null
@@ -116,7 +117,7 @@ function fsGet(path){
                             "name": d,
                             "size": s,
                             "is_dir": false,
-                            "modified": (m|0)*1000,
+                            "modified": m,
                             "sign": "",
                             "thumb": "",
                             "type": 4
@@ -146,7 +147,7 @@ function fsDirs(path){
             let d = link[0]
             let content =  {
                 "name": d,
-                "modified": (link[2]|0)*1000,
+                "modified": link[2],
             }
             if(isFolder(path + "/" + d)){
                 c.data.push(content);
@@ -175,48 +176,47 @@ function getSearch(n){
     return new URL(location).searchParams.get(n) || "";
 }
 
+let base4 = base1 + base3 // http://1.1.1.1 + ?path=
 function generateUrl(path){
-    // 将 /a/b/c 路径转为 ?path=/a/b/c 形式
-    return base1 + "path=" + encodeURIComponent(path);
+    // 将 /a/b/c?d 路径转为 ?path=/a/b/c&d 形式
+    let x = path.indexOf("?")
+    if(~x){
+        return base4 + path.slice(0,x) + "&"+ path.slice(x+1);
+    }else{
+        return base4 + path;
+    }
 }
 
 function hookXhref(r){
     // ?path=/a/b/c 获取 /a/b/c
-    let path = new URL(r).searchParams.get("path")
+    let path = (new URL(r).searchParams.get("path")||"").split("/").map(r=>encodeURIComponent(r)).join("/")
     return path ? new URL(path,base1).href : r;
 }
 
 function gateway(path) {
-    // 处理 % 和 # 的访问报错
     return base2 + path
 }
 
-function generatePath(path){
-    // 确保浏览器刷新后报错
-    return encodeURIComponent(path)
-} 
-
 history.replaceState1 = function(a,b,url){
-    // 将 ?from_search=1&a=1 转为 ?path=...&from_search=1&a=1
     url = decodeURIComponent(url);
-    let x = url.indexOf('?')  // xxx.com?a=1 => ?path=xxx.com&a=1
+    let x = url.indexOf('?')  // aa.cn?a=1 => ?path=aa.cn&a=1
     if(~x){
-        url = `?path=${generatePath(getSearch("path"))}&`+url.slice(x+1)
+        url = base3 + encodeURIComponent(getSearch("path")) + "&" + url.slice(x+1)
     }else{
-        url = "?path="+generatePath(url)
+        url = base3 + encodeURIComponent(url)
     }
     return history.replaceState(a,b,url)
 }
 
-// 搜查，路径，跳转，分页会使用到 all、pagination、load_more、auto_load_more
+// 搜查，路径，跳转，分页会使用到
 history.pushState1 = function(a,b,url){
     // 将 ?from_search=1&a=1 转为 ?path=...&from_search=1&a=1
     url = decodeURIComponent(url);
     let x = url.indexOf('?')
     if(~x){ 
-        url = `?path=${generatePath(url.slice(0,x))}&`+url.slice(x+1)
+        url = base3 + encodeURIComponent(url.slice(0,x)) + "&" + url.slice(x+1)
     }else{
-        url = "?path="+generatePath(url)
+        url = base3 + encodeURIComponent(url)
     }
     return history.pushState(a,b,url)
 }
@@ -229,7 +229,8 @@ Object.defineProperties(location,{
         set:function(){
             alert("can't hook")
         }
-    },search1:{
+    },
+    search1:{
         get:function(){
             // 删除 location.search 中的 path 参数
             let url = new URL(location.href);
