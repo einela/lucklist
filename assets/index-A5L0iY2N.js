@@ -224,7 +224,7 @@ history.pushState1 = function(a,b,url){
 Object.defineProperties(location,{
     pathname1:{
         get:function(){
-            return getSearch("path").split("/").map(r=>encodeURIComponent(r)).join("/") || "/";
+            return getSearch("path").split("/").map(r=>encodeURIComponent(r)).join("/").replace("%40","@") || "/";
         },
         set:function(){
             alert("can't hook")
